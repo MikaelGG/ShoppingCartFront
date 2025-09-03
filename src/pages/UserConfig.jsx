@@ -2,17 +2,22 @@ import API from '../config/AxiosConfig';
 import { useState, useEffect, use } from 'react';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import Header from '../components/HeaderNav';
 
 export default function UserConfig() {
     const navigate = useNavigate();
-    const [userData, setUserData] = useState(null); // null inicialmente
+    const [userData, setUserData] = useState(null); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const fetchUserData = async () => {
         try {
             setLoading(true);
-            const response = await API.get('/api/users/14');
+            const token = localStorage.getItem('token');
+            const tokdecoded = jwtDecode(token);
+            console.log(tokdecoded);
+            const response = await API.get('/api/users/email' + '?email=' + tokdecoded.sub);
             console.log(response);
             setUserData(response.data);
         } catch (error) {
@@ -23,25 +28,6 @@ export default function UserConfig() {
         }
     };
 
-    const logout = async () => {
-        try {
-            const result = await API.post('/auth/logout');
-            localStorage.removeItem('token');
-            delete API.defaults.headers.common['Authorization'];
-            console.log(result);
-            Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Successful Logout",
-                showConfirmButton: false,
-                timer: 2000
-            }).then(() => navigate('/signin'));
-        } catch (error) {
-            console.error("Error during logout", error);
-        }
-    };
-
-    // Ejecutar fetchUserData cuando el componente se monta
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -51,17 +37,7 @@ export default function UserConfig() {
 
     return (
         <>
-            <button onClick={logout} style={{
-                        position: 'absolute',
-                        top: '1rem',
-                        right: '1rem',
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-            }}>Log out</button>
+            <Header/>    
             <div style={{ marginTop: 120, display: 'flex', justifyContent: 'center' }}>
                 <form style={{
                     background: '#fff',

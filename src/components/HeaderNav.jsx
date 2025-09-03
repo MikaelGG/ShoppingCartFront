@@ -1,11 +1,14 @@
-import React from 'react';
-import { useState, useRef } from 'react';
+import Swal from 'sweetalert2';
+import API from '../config/AxiosConfig';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 
 export default function Header({ onCartClick, cartCount }) {
 
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [token, setToken] = useState(null);
     const closeTimeout = useRef(null);
     const navigate = useNavigate();
 
@@ -14,13 +17,55 @@ export default function Header({ onCartClick, cartCount }) {
             clearTimeout(closeTimeout.current);
             closeTimeout.current = null;
         }
-        setShowProfileMenu(true);
+            setShowProfileMenu(true)
     };
 
     const handleMouseLeave = () => {
         closeTimeout.current = setTimeout(() => {
             setShowProfileMenu(false);
-        }, 500); // 1 segundo
+        }, 500); 
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const tokdecoded = jwtDecode(token);
+                const tokiat = tokdecoded.iat;
+                const tokexp = tokdecoded.exp;
+
+                const currentTime = Math.floor(Date.now() / 1000);
+                const timeRemaining = tokexp - currentTime;
+
+                currentTime >= tokexp ? localStorage.removeItem('token') && console.log('Token expirado') : console.log('Token válido,' + ` expira en ${timeRemaining} segundos`);
+            } catch (error) {
+                console.error('Error decodificando token:', error);
+                localStorage.removeItem('token');
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        const tok = localStorage.getItem('token');
+        setToken(tok);
+    }, []);
+
+    const logout = async () => {
+        try {
+            const result = await API.post('/auth/logout');
+            localStorage.removeItem('token');
+            delete API.defaults.headers.common['Authorization'];
+            console.log(result);
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Successful Logout",
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => navigate('/signin'));
+        } catch (error) {
+            console.error("Error during logout", error);
+        }
     };
 
     return (
@@ -101,7 +146,7 @@ export default function Header({ onCartClick, cartCount }) {
                         <circle cx="12" cy="8" r="4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M4 20c0-4 4-6 8-6s8 2 8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    {showProfileMenu && (
+                    {!token ? showProfileMenu && (
                         <div style={{
                             position: 'absolute',
                             top: '36px',
@@ -143,6 +188,60 @@ export default function Header({ onCartClick, cartCount }) {
                                 cursor: 'pointer'
                             }} onClick={() => navigate('/signup')} >
                                 Registrarse
+                            </button>
+                        </div>
+                    ) : showProfileMenu && (
+
+                        <div style={{
+                            position: 'absolute',
+                            top: '36px',
+                            right: 0,
+                            background: '#fff',
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                            padding: '18px 24px',
+                            minWidth: '220px',
+                            zIndex: 2000,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'stretch'
+                        }}>
+                            <button style={{
+                                background: '#2a8',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '5px',
+                                padding: '10px',
+                                fontWeight: 'bold',
+                                marginBottom: '12px',
+                                cursor: 'pointer'
+                                
+                            }} onClick={() => navigate('/shopping-cart')}>
+                                Carrito de compras
+                            </button>
+                            <button style={{
+                                background: '#fff',
+                                color: '#2a8',
+                                border: '1px solid #2a8',
+                                borderRadius: '5px',
+                                padding: '8px',
+                                fontWeight: 'bold',
+                                marginBottom: '12px',
+                                cursor: 'pointer'
+                            }} onClick={() => navigate('/user-conf')} >
+                                Configuracion del prefil
+                            </button>
+                            <button onClick={logout} style={{
+                                backgroundColor: '#dc3545',
+                                color: '#fff',
+                                border: '1px solid #ffffff8e',
+                                borderRadius: '5px',
+                                padding: '8px',
+                                fontWeight: 'bold',
+                                cursor: 'pointer'
+                            }}>
+                                Cerrar sesión
                             </button>
                         </div>
                     )}

@@ -1,4 +1,6 @@
 import React from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CartMenu({
     open,
@@ -10,12 +12,21 @@ export default function CartMenu({
 }) {
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    const [expanded, setExpanded] = React.useState({});
+    const [expanded, setExpanded] = useState({});
 
-    const scrollRef = React.useRef(null);
+    const [token, setToken] = useState(null);
+
+    const scrollRef = useRef(null);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const tok = localStorage.getItem('token');
+        setToken(tok);
+    }, []);
 
     // Prevent page scroll when mouse is over the cart menu's scroll area
-    React.useEffect(() => {
+    useEffect(() => {
         const el = scrollRef.current;
         if (!el) return;
 
@@ -158,6 +169,7 @@ export default function CartMenu({
                 <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
                     Total: ${total}
                 </div>
+                {!token ? (
                 <button
                     style={{
                         background: '#2a8',
@@ -171,14 +183,27 @@ export default function CartMenu({
                         cursor: 'pointer'
                     }}
                     disabled={cart.length === 0}
-                    onClick={() => {
-                        alert('¡Compra realizada!');
-                        onClear();
-                        onClose();
-                    }}
-                >
-                    Comprar productos
+                    onClick={() => navigate('/signin')}>
+                    Iniciar sesión para comprar productos
                 </button>
+                ) : (
+                    <button
+                        style={{
+                            background: '#2a8',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '12px 0',
+                            fontWeight: 'bold',
+                            fontSize: 18,
+                            width: '100%',
+                            cursor: 'pointer'
+                        }}
+                        disabled={cart.length === 0}
+                        onClick={() => navigate('/shopping-cart')}>
+                        Comprar productos
+                    </button>
+                )}
             </div>
         </div>
     );

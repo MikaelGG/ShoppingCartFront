@@ -5,6 +5,7 @@ import App from './pages/app/App'
 import SignUpPage from './pages/SignUpPage';
 import SignInPage from './pages/SignInPage';
 import UserConfig from './pages/UserConfig';
+import ShoppingCart from './pages/ShoppingCart';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -22,6 +23,7 @@ export default function Index() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/user-conf" element={<UserConfig />} />
+        <Route path='/shopping-cart' element={<ShoppingCart/>} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,11 +1,12 @@
-import Header from '../components/HeaderNav';
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import API from '../config/AxiosConfig';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
+
+    const { setToken } = useAuth();
     const navigate = useNavigate();
 
     const [form, setForm] = useState({ email: '', password: '' });
@@ -18,7 +19,7 @@ export default function LoginPage() {
             const result = await API.post('/auth/signin', form);
             console.log(result);
             const token = result.data;
-            localStorage.setItem('token', token);
+            setToken(token);
             Swal.fire({
                 position: "center",
                 icon: "success",
@@ -37,7 +38,6 @@ export default function LoginPage() {
 
     return (
         <>
-            <Header />
             <div style={{ marginTop: 120, display: 'flex', justifyContent: 'center' }}>
                 <form onSubmit={handleSubmit} style={{
                     background: '#fff',

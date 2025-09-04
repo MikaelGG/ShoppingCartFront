@@ -1,20 +1,19 @@
 import API from '../config/AxiosConfig';
 import { useState, useEffect, use } from 'react';
-import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import Header from '../components/HeaderNav';
+import { useAuth } from '../context/AuthContext';
 
 export default function UserConfig() {
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { token } = useAuth();
 
     const fetchUserData = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
             const tokdecoded = jwtDecode(token);
             console.log(tokdecoded);
             const response = await API.get('/api/users/email' + '?email=' + tokdecoded.sub);
@@ -37,7 +36,6 @@ export default function UserConfig() {
 
     return (
         <>
-            <Header/>    
             <div style={{ marginTop: 120, display: 'flex', justifyContent: 'center' }}>
                 <form style={{
                     background: '#fff',

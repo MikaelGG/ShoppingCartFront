@@ -2,15 +2,18 @@ import Swal from 'sweetalert2';
 import API from '../config/AxiosConfig';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { useCart } from '../context/CartContext'; 
+import { useAuth } from '../context/AuthContext';
 
 
-export default function Header({ onCartClick, cartCount }) {
+export default function Header({ onCartClick }) {
 
     const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const [token, setToken] = useState(null);
+    const { token, setToken } = useAuth();
     const closeTimeout = useRef(null);
     const navigate = useNavigate();
+
+    const { totalItems } = useCart();
 
     const handleMouseEnter = () => {
         if (closeTimeout.current) {
@@ -26,34 +29,10 @@ export default function Header({ onCartClick, cartCount }) {
         }, 500); 
     };
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const tokdecoded = jwtDecode(token);
-                const tokiat = tokdecoded.iat;
-                const tokexp = tokdecoded.exp;
-
-                const currentTime = Math.floor(Date.now() / 1000);
-                const timeRemaining = tokexp - currentTime;
-
-                currentTime >= tokexp ? localStorage.removeItem('token') && console.log('Token expirado') : console.log('Token válido,' + ` expira en ${timeRemaining} segundos`);
-            } catch (error) {
-                console.error('Error decodificando token:', error);
-                localStorage.removeItem('token');
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        const tok = localStorage.getItem('token');
-        setToken(tok);
-    }, []);
-
     const logout = async () => {
         try {
             const result = await API.post('/auth/logout');
-            localStorage.removeItem('token');
+            setToken(null);
             delete API.defaults.headers.common['Authorization'];
             console.log(result);
             Swal.fire({
@@ -108,7 +87,7 @@ export default function Header({ onCartClick, cartCount }) {
                         <circle cx="7" cy="21" r="1" />
                         <circle cx="17" cy="21" r="1" />
                     </svg>
-                    {cartCount > 0 && (
+                    {totalItems > 0 && (
                         <span style={{
                             position: 'absolute',
                             top: -6,
@@ -124,7 +103,7 @@ export default function Header({ onCartClick, cartCount }) {
                             lineHeight: '18px',
                             boxShadow: '0 1px 4px rgba(0,0,0,0.15)'
                         }}>
-                            {cartCount}
+                            {totalItems}
                         </span>
                     )}
                 </div>

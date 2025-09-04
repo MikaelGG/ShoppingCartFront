@@ -1,29 +1,22 @@
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function CartMenu({
     open,
     onClose,
-    cart,
-    onUpdateQuantity,
-    onRemove,
-    onClear
 }) {
+
+    const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const [expanded, setExpanded] = useState({});
-
-    const [token, setToken] = useState(null);
-
     const scrollRef = useRef(null);
+    const {token} = useAuth();
 
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const tok = localStorage.getItem('token');
-        setToken(tok);
-    }, []);
 
     // Prevent page scroll when mouse is over the cart menu's scroll area
     useEffect(() => {
@@ -148,10 +141,10 @@ export default function CartMenu({
                                 </div>
                             )}
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                                <button onClick={() => onUpdateQuantity(item.code, item.quantity - 1)} style={{ fontSize: 20, width: 32, height: 32 }}>-</button>
+                                <button onClick={() => updateQuantity(item.code, item.quantity - 1)} style={{ fontSize: 20, width: 32, height: 32 }}>-</button>
                                 <span style={{ margin: '0 12px', fontSize: 18 }}>{item.quantity}</span>
-                                <button onClick={() => onUpdateQuantity(item.code, item.quantity + 1)} style={{ fontSize: 20, width: 32, height: 32 }}>+</button>
-                                <button onClick={() => onRemove(item.code)} style={{ marginLeft: 16, color: '#c00', background: 'none', border: 'none', cursor: 'pointer' }}>Eliminar</button>
+                                <button onClick={() => updateQuantity(item.code, item.quantity + 1)} style={{ fontSize: 20, width: 32, height: 32 }}>+</button>
+                                <button onClick={() => removeFromCart(item.code)} style={{ marginLeft: 16, color: '#c00', background: 'none', border: 'none', cursor: 'pointer' }}>Eliminar</button>
                             </div>
                             <div style={{ fontWeight: 'bold', color: '#444', fontSize: 16 }}>
                                 Subtotal: ${item.price * item.quantity}
@@ -183,7 +176,10 @@ export default function CartMenu({
                         cursor: 'pointer'
                     }}
                     disabled={cart.length === 0}
-                    onClick={() => navigate('/signin')}>
+                    onClick={() => {
+                        onClose();
+                        navigate('/signin')
+                    }}>
                     Iniciar sesión para comprar productos
                 </button>
                 ) : (
@@ -200,7 +196,10 @@ export default function CartMenu({
                             cursor: 'pointer'
                         }}
                         disabled={cart.length === 0}
-                        onClick={() => navigate('/shopping-cart')}>
+                        onClick={() => {
+                            onClose();
+                            navigate('/shopping-cart')
+                        }}>
                         Comprar productos
                     </button>
                 )}

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useCart } from '../context/CartContext';
 
 export default function ProductCard({ product, onAddToCart }) {
     const [quantity, setQuantity] = useState(0);
@@ -70,9 +71,11 @@ export default function ProductCard({ product, onAddToCart }) {
     );
 };
 
-export function Products({ selectedType, onAddToCart, searchQuery }) {
+export function Products({ selectedType, searchQuery }) {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const { addToCart } = useCart();
 
     useEffect(() => {
         setLoading(true);
@@ -104,7 +107,7 @@ export function Products({ selectedType, onAddToCart, searchQuery }) {
                 <div style={{ fontSize: 20, color: '#888', marginTop: 40 }}>No hay productos para mostrar</div>
             ) : (
                 products.map(product => (
-                    <ProductCard key={product.code} product={product} onAddToCart={onAddToCart} />
+                    <ProductCard key={product.code} product={product} onAddToCart={addToCart} />
                 ))
             )}
         </div>

@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import API from "../config/AxiosConfig";
+
 
 export default function Searcher({ placeholder = "Buscar...", onChange, value, onTypeChange, onSearch }) {
     const [productType, setProductType] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:8082/api/product-types').then((response) => {
+        API.get('/api/product-types').then((response) => {
             console.log(response.data);
             setProductType(response.data);
         });
@@ -18,7 +20,7 @@ export default function Searcher({ placeholder = "Buscar...", onChange, value, o
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: '6rem'
+            marginTop: '2.5rem'
         }}>
             <div style={{
                 display: 'flex',

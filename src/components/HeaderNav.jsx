@@ -54,8 +54,8 @@ export default function Header({ onCartClick }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '1rem 2rem',
-            background: '#f8f8f8',
-            borderBottom: '1px solid #ddd',
+            background: 'var(--color-surface)',
+            borderBottom: 'var(--border-subtle)',
             position: 'fixed',
             top: 0,
             left: 0,
@@ -64,7 +64,7 @@ export default function Header({ onCartClick }) {
         }}>
             {/* Logo on the left */}
             <div
-                style={{ fontWeight: 'bold', fontSize: '1.5rem', color: '#333', cursor: 'pointer' }}
+                style={{ fontWeight: 'bold', fontSize: '1.5rem', color: 'var(--color-text)', cursor: 'pointer' }}
                 onClick={() => navigate('/')}
             >
                 MyShop
@@ -72,7 +72,7 @@ export default function Header({ onCartClick }) {
             {/* Spacer to push icons to the right */}
             <div style={{ flex: 1 }}></div>
             {/* Icons on the right */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '50px', paddingRight: '100px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '50px', paddingRight: '100px', color: 'var(--color-text)' }}>
                 {/* Shopping cart icon */}
                 <div style={{ position: 'relative', fontSize: '1.8rem', cursor: 'pointer' }} onClick={onCartClick}>
                     <svg
@@ -130,10 +130,10 @@ export default function Header({ onCartClick }) {
                             position: 'absolute',
                             top: '36px',
                             right: 0,
-                            background: '#fff',
-                            border: '1px solid #ddd',
+                            background: 'var(--color-surface-2)',
+                            border: 'var(--border-subtle)',
                             borderRadius: '8px',
-                            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                            boxShadow: 'var(--shadow-lg)',
                             padding: '18px 24px',
                             minWidth: '220px',
                             zIndex: 2000,
@@ -142,7 +142,7 @@ export default function Header({ onCartClick }) {
                             alignItems: 'stretch'
                         }}>
                             <button style={{
-                                background: '#2a8',
+                                background: 'var(--color-accent)',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '5px',
@@ -150,17 +150,16 @@ export default function Header({ onCartClick }) {
                                 fontWeight: 'bold',
                                 marginBottom: '12px',
                                 cursor: 'pointer'
-                                
                             }} onClick={() => navigate('/signin')}>
                                 Iniciar sesión
                             </button>
-                            <div style={{ fontSize: '15px', color: '#444', marginBottom: '8px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '15px', color: 'var(--color-text-muted)', marginBottom: '8px', textAlign: 'center' }}>
                                 ¿No te has registrado?
                             </div>
                             <button style={{
-                                background: '#fff',
-                                color: '#2a8',
-                                border: '1px solid #2a8',
+                                background: 'transparent',
+                                color: 'var(--color-accent)',
+                                border: '1px solid var(--color-accent)',
                                 borderRadius: '5px',
                                 padding: '8px',
                                 fontWeight: 'bold',
@@ -175,10 +174,10 @@ export default function Header({ onCartClick }) {
                             position: 'absolute',
                             top: '36px',
                             right: 0,
-                            background: '#fff',
-                            border: '1px solid #ddd',
+                            background: 'var(--color-surface-2)',
+                            border: 'var(--border-subtle)',
                             borderRadius: '8px',
-                            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                            boxShadow: 'var(--shadow-lg)',
                             padding: '18px 24px',
                             minWidth: '220px',
                             zIndex: 2000,
@@ -187,7 +186,19 @@ export default function Header({ onCartClick }) {
                             alignItems: 'stretch'
                         }}>
                             <button style={{
-                                background: '#2a8',
+                                background: 'transparent',
+                                color: 'var(--color-accent)',
+                                border: '1px solid var(--color-accent)',
+                                borderRadius: '5px',
+                                padding: '8px',
+                                fontWeight: 'bold',
+                                marginBottom: '12px',
+                                cursor: 'pointer'
+                            }} onClick={() => navigate('/user-conf')} >
+                                Configuración del prefil
+                            </button>
+                            <button style={{
+                                background: 'var(--color-accent)',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '5px',
@@ -195,26 +206,25 @@ export default function Header({ onCartClick }) {
                                 fontWeight: 'bold',
                                 marginBottom: '12px',
                                 cursor: 'pointer'
-                                
                             }} onClick={() => navigate('/shopping-cart')}>
                                 Carrito de compras
                             </button>
                             <button style={{
-                                background: '#fff',
-                                color: '#2a8',
-                                border: '1px solid #2a8',
+                                background: 'transparent',
+                                color: 'var(--color-accent)',
+                                border: '1px solid var(--color-accent)',
                                 borderRadius: '5px',
                                 padding: '8px',
                                 fontWeight: 'bold',
                                 marginBottom: '12px',
                                 cursor: 'pointer'
-                            }} onClick={() => navigate('/user-conf')} >
-                                Configuracion del prefil
+                            }} onClick={() => navigate('/shipping-addresses')} >
+                                Direcciones de envío
                             </button>
                             <button onClick={logout} style={{
-                                backgroundColor: '#dc3545',
+                                backgroundColor: 'var(--color-danger)',
                                 color: '#fff',
-                                border: '1px solid #ffffff8e',
+                                border: '1px solid rgba(255,255,255,0.25)',
                                 borderRadius: '5px',
                                 padding: '8px',
                                 fontWeight: 'bold',

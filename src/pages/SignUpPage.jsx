@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import API from '../config/AxiosConfig';
 
 export default function RegisterPage() {
 
@@ -19,25 +20,20 @@ export default function RegisterPage() {
 
     const handleSubmit = async e => {
         e.preventDefault();
-        await axios({
-            method: 'POST', 
-            url: 'http://localhost:8081/auth/signup', 
-            headers: {'Content-Type': 'application/json'}, 
-            data: form
-        })  
-        .then(result => {
-            console.log("Object saved succesfully", result);
-            Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "successful registration",
-                showConfirmButton: false,
-                timer: 2000
-            }).then(() => navigate('/signin'));
-        })
-        .catch(err => {
-            console.error("Error saving object", err);
-        });
+        try {
+            await API.post('/auth/signup', form).then(result => {
+                console.log("Object saved succesfully", result);
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "successful registration",
+                    showConfirmButton: false,
+                    timer: 2000
+                }).then(() => navigate('/signin'));
+            })
+        } catch (error) {
+            console.error("Error saving object", error);
+        }
     };
 
     return (

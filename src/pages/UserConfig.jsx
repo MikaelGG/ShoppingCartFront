@@ -27,6 +27,22 @@ export default function UserConfig() {
         }
     };
 
+    const updateUserData = async () => {
+        try {
+            
+        } catch (error) {
+            
+        }
+    }
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUserData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -36,8 +52,8 @@ export default function UserConfig() {
 
     return (
         <>
-            <div style={{ marginTop: 120, display: 'flex', justifyContent: 'center' }}>
-                <form style={{
+            <div style={{ marginTop: 70, display: 'flex', justifyContent: 'center' }}>
+                <form onSubmit={updateUserData} style={{
                     background: '#fff',
                     padding: 32,
                     borderRadius: 12,
@@ -66,7 +82,7 @@ export default function UserConfig() {
                             type="text"
                             placeholder="Nombre completo"
                             value={userData.fullName}
-                            // onChange={handleChange}
+                            onChange={handleInputChange}
                             required
                             style={{ 
                                 padding: 10, 
@@ -95,7 +111,7 @@ export default function UserConfig() {
                             type="email"
                             placeholder="Correo electrónico"
                             value={userData.email}
-                            // onChange={handleChange}
+                            onChange={handleInputChange}
                             required
                             style={{ 
                                 padding: 10, 
@@ -124,7 +140,7 @@ export default function UserConfig() {
                             type="password"
                             placeholder="Contraseña"
                             value={userData.password || ''} // Prevenir undefined
-                            // onChange={handleChange}
+                            onChange={handleInputChange}
                             required
                             style={{ 
                                 padding: 10, 
@@ -153,7 +169,7 @@ export default function UserConfig() {
                             type="tel"
                             placeholder="Número de teléfono"
                             value={userData.phoneNumber}
-                            // onChange={handleChange}
+                            onChange={handleInputChange}
                             required
                             style={{ 
                                 padding: 10, 

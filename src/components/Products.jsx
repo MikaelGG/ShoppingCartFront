@@ -81,11 +81,11 @@ export function Products({ selectedType, searchQuery }) {
         setLoading(true);
         let url = '';
         if (searchQuery && searchQuery.trim() !== "") {
-            url = `http://localhost:8082/api/products/searcher?name=${encodeURIComponent(searchQuery)}`;
+            url = `http://localhost:8080/api/products/searcher?name=${encodeURIComponent(searchQuery)}`;
         } else if (selectedType) {
-            url = `http://localhost:8082/api/products/product/${selectedType}`;
+            url = `http://localhost:8080/api/products/product/${selectedType}`;
         } else {
-            url = 'http://localhost:8082/api/products';
+            url = 'http://localhost:8080/api/products';
         }
         axios.get(url).then(res => setProducts(res.data))
         .catch(() => setProducts([]))

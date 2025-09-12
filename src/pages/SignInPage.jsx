@@ -28,6 +28,7 @@ export default function LoginPage() {
                 timer: 2000
             }).then(() => navigate('/user-conf'));
         } catch (error) {
+            console.log(error);
             Swal.fire({
                 icon: "error",
                 title: "Error", 

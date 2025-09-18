@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import API from "../config/AxiosConfig";
+import './css/ShoppingCart.css';
 
 export default function ShoppingCart() {
     const { cart } = useCart();
     const { token } = useAuth();
+    const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState(null);
@@ -25,7 +27,7 @@ export default function ShoppingCart() {
             fetchUserData();
             fetchAddresses();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     const fetchUserData = async () => {
@@ -61,7 +63,7 @@ export default function ShoppingCart() {
         if (!selectedAddress || cart.length === 0) {
             return;
         }
-        
+
         // Aquí se integraría con Mercado Pago
         // Por ahora mostramos un mensaje de confirmación
         const confirmPayment = window.confirm(
@@ -70,7 +72,7 @@ export default function ShoppingCart() {
             `${selectedAddress.addressLine1}, ${selectedAddress.city}\n\n` +
             `Serás redirigido a Mercado Pago para completar el pago.`
         );
-        
+
         if (confirmPayment) {
             // Aquí iría la integración real con Mercado Pago
             alert("Redirigiendo a Mercado Pago...\n\n(Esta es una simulación - en producción se abriría la pasarela de pago real)");
@@ -79,60 +81,31 @@ export default function ShoppingCart() {
 
     return (
         <>
-            <div style={{ marginTop: "100px", textAlign: "center" }}>
-                <h1>Productos en el carrito</h1>
-                
-                <div style={{ 
-                    display: "flex", 
-                    gap: "40px", 
-                    maxWidth: "1200px", 
-                    margin: "40px auto",
-                    padding: "0 20px"
-                }}>
+            <div className="cart-page">
+                <h1 className="cart-title">Productos en el carrito</h1>
+
+                <div className="cart-layout">
                     {/* Columna Izquierda - Secciones */}
-                    <div style={{ flex: 1, maxWidth: "600px" }}>
+                    <div className="cart-left">
                         {/* Sección de Dirección de Envío */}
-                        <div style={{
-                            background: "#fff",
-                            borderRadius: "12px",
-                            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                            marginBottom: "20px",
-                            overflow: "hidden"
-                        }}>
-                            <div 
+                        <div className="cart-section">
+                            <div
                                 onClick={() => toggleSection("address")}
-                                style={{
-                                    background: "#f8f9fa",
-                                    padding: "20px",
-                                    cursor: "pointer",
-                                    borderBottom: expandedSections.address ? "1px solid #eee" : "none",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}
-                            >
-                                <h3 style={{ margin: 0, color: "#333" }}>Dirección de envío</h3>
-                                <span style={{ fontSize: "20px" }}>
+                                className="cart-section-header">
+                                <h3>Dirección de envío</h3>
+                                <span>
                                     {expandedSections.address ? "−" : "+"}
                                 </span>
                             </div>
-                            
+
                             {expandedSections.address && (
-                                <div style={{ padding: "20px" }}>
+                                <div className="cart-section-body">
                                     {addresses.length === 0 ? (
-                                        <div style={{ textAlign: "center", color: "#666" }}>
+                                        <div className="empty-address">
                                             <p>No tienes direcciones guardadas</p>
-                                            <button 
+                                            <button
                                                 onClick={() => setShowAddressModal(true)}
-                                                style={{
-                                                    background: "#2a8",
-                                                    color: "#fff",
-                                                    border: "none",
-                                                    borderRadius: "6px",
-                                                    padding: "10px 20px",
-                                                    cursor: "pointer",
-                                                    marginTop: "10px"
-                                                }}
+                                                className="btn-primary"
                                             >
                                                 Agregar dirección
                                             </button>
@@ -140,36 +113,21 @@ export default function ShoppingCart() {
                                     ) : (
                                         <div>
                                             {addresses.map((address, index) => (
-                                                <div key={index} style={{
-                                                    border: selectedAddress?.id === address.id ? "2px solid #2a8" : "1px solid #eee",
-                                                    borderRadius: "8px",
-                                                    padding: "15px",
-                                                    marginBottom: "10px",
-                                                    cursor: "pointer",
-                                                    background: selectedAddress?.id === address.id ? "#f0f8ff" : "#fff"
-                                                }}
-                                                onClick={() => setSelectedAddress(address)}
+                                                <div key={index} className={`address-card ${selectedAddress?.id === address.id ? "selected" : ""}`}
+                                                    onClick={() => setSelectedAddress(address)}
                                                 >
-                                                    <h4 style={{ margin: "0 0 8px 0" }}>{address.fullName}</h4>
-                                                    <p style={{ margin: "4px 0", color: "#666" }}>{address.addressLine1}</p>
-                                                    {address.addressLine2 && <p style={{ margin: "4px 0", color: "#666" }}>{address.addressLine2}</p>}
-                                                    <p style={{ margin: "4px 0", color: "#666" }}>
+                                                    <h4>{address.fullName}</h4>
+                                                    <p>{address.addressLine1}</p>
+                                                    {address.addressLine2 && <p>{address.addressLine2}</p>}
+                                                    <p>
                                                         {address.city}, {address.region}, {address.country}
                                                     </p>
-                                                    <p style={{ margin: "4px 0", color: "#666" }}>Teléfono: {address.phone}</p>
+                                                    <p>Teléfono: {address.phone}</p>
                                                 </div>
                                             ))}
-                                            <button 
+                                            <button
                                                 onClick={() => setShowAddressModal(true)}
-                                                style={{
-                                                    background: "transparent",
-                                                    color: "#2a8",
-                                                    border: "1px solid #2a8",
-                                                    borderRadius: "6px",
-                                                    padding: "8px 16px",
-                                                    cursor: "pointer",
-                                                    marginTop: "10px"
-                                                }}
+                                                className="btn-outline"
                                             >
                                                 Agregar otra dirección
                                             </button>
@@ -180,103 +138,67 @@ export default function ShoppingCart() {
                         </div>
 
                         {/* Sección de Información del Comprador */}
-                        <div style={{
-                            background: "#fff",
-                            borderRadius: "12px",
-                            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                            marginBottom: "20px",
-                            overflow: "hidden"
-                        }}>
-                            <div 
+                        <div className="cart-section">
+                            <div
                                 onClick={() => toggleSection("buyerInfo")}
-                                style={{
-                                    background: "#f8f9fa",
-                                    padding: "20px",
-                                    cursor: "pointer",
-                                    borderBottom: expandedSections.buyerInfo ? "1px solid #eee" : "none",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}
+                                className="cart-section-header"
                             >
-                                <h3 style={{ margin: 0, color: "#333" }}>Información del comprador</h3>
-                                <span style={{ fontSize: "20px" }}>
+                                <h3>Información del comprador</h3>
+                                <span>
                                     {expandedSections.buyerInfo ? "−" : "+"}
                                 </span>
                             </div>
-                            
+
                             {expandedSections.buyerInfo && userData && (
-                                <div style={{ padding: "20px" }}>
-                                    <div style={{ marginBottom: "15px" }}>
+                                <div className="cart-section-body">
+                                    <div>
                                         <strong>Nombre completo:</strong>
-                                        <p style={{ margin: "5px 0", color: "#666" }}>{userData.fullName}</p>
+                                        <p>{userData.fullName}</p>
                                     </div>
-                                    <div style={{ marginBottom: "15px" }}>
+                                    <div>
                                         <strong>Correo electrónico:</strong>
-                                        <p style={{ margin: "5px 0", color: "#666" }}>{userData.email}</p>
+                                        <p>{userData.email}</p>
                                     </div>
                                     <div>
                                         <strong>Número de teléfono:</strong>
-                                        <p style={{ margin: "5px 0", color: "#666" }}>{userData.phoneNumber}</p>
+                                        <p>{userData.phoneNumber}</p>
                                     </div>
                                 </div>
                             )}
                             {expandedSections.buyerInfo && !userData && (
-                                <div style={{ padding: "20px", textAlign: "center", color: "#666" }}>
+                                <div className="loading-text">
                                     <p>Cargando información del comprador...</p>
                                 </div>
                             )}
                         </div>
 
                         {/* Sección de Guía para Pagar */}
-                        <div style={{
-                            background: "#fff",
-                            borderRadius: "12px",
-                            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                            marginBottom: "20px",
-                            overflow: "hidden"
-                        }}>
-                            <div 
+                        <div className="cart-section">
+                            <div
                                 onClick={() => toggleSection("paymentGuide")}
-                                style={{
-                                    background: "#f8f9fa",
-                                    padding: "20px",
-                                    cursor: "pointer",
-                                    borderBottom: expandedSections.paymentGuide ? "1px solid #eee" : "none",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}
+                                className="cart-section-header"
                             >
-                                <h3 style={{ margin: 0, color: "#333" }}>Guía para pagar</h3>
-                                <span style={{ fontSize: "20px" }}>
+                                <h3>Guía para pagar</h3>
+                                <span>
                                     {expandedSections.paymentGuide ? "−" : "+"}
                                 </span>
                             </div>
-                            
+
                             {expandedSections.paymentGuide && (
-                                <div style={{ padding: "20px" }}>
-                                    <div style={{ marginBottom: "20px" }}>
-                                        <h4 style={{ color: "#2a8", marginBottom: "10px" }}>Instrucciones de pago:</h4>
-                                        <ol style={{ paddingLeft: "20px", lineHeight: "1.6" }}>
-                                            <li>Verifica que todos tus datos estén correctos</li>
-                                            <li>Selecciona tu dirección de envío</li>
-                                            <li>Haz clic en "Ir a la pasarela de pagos"</li>
-                                            <li>Serás redirigido a Mercado Pago, una pasarela 100% confiable</li>
-                                            <li>Elige tu método de pago preferido</li>
-                                            <li>Confirma tu compra y recibe la confirmación por email</li>
-                                        </ol>
-                                    </div>
-                                    
-                                    <div style={{ 
-                                        background: "#f0f8ff", 
-                                        padding: "15px", 
-                                        borderRadius: "8px",
-                                        border: "1px solid #2a8",
-                                        marginBottom: "15px"
-                                    }}>
-                                        <h4 style={{ margin: "0 0 10px 0", color: "#2a8" }}>Métodos de pago disponibles:</h4>
-                                        <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                                <div className="cart-section-body">
+                                    <h4 className="highlight-title">Instrucciones de pago:</h4>
+                                    <ol>
+                                        <li>Verifica que todos tus datos estén correctos</li>
+                                        <li>Selecciona tu dirección de envío</li>
+                                        <li>Haz clic en "Ir a la pasarela de pagos"</li>
+                                        <li>Serás redirigido a Mercado Pago, una pasarela 100% confiable</li>
+                                        <li>Elige tu método de pago preferido</li>
+                                        <li>Confirma tu compra y recibe la confirmación por email</li>
+                                    </ol>
+
+                                    <div className="payment-methods">
+                                        <h4>Métodos de pago disponibles:</h4>
+                                        <ul>
                                             <li>Tarjeta de crédito/débito (Visa, Mastercard, American Express)</li>
                                             <li>Efectivo (PSE, Baloto, Efecty)</li>
                                             <li>Transferencia bancaria</li>
@@ -284,30 +206,19 @@ export default function ShoppingCart() {
                                         </ul>
                                     </div>
 
-                                    <div style={{ 
-                                        background: "#fff3cd", 
-                                        padding: "15px", 
-                                        borderRadius: "8px",
-                                        border: "1px solid #ffeaa7",
-                                        marginBottom: "15px"
-                                    }}>
-                                        <h4 style={{ margin: "0 0 10px 0", color: "#856404" }}>⚠️ Importante:</h4>
-                                        <p style={{ margin: 0, fontSize: "14px", color: "#856404" }}>
-                                            Una vez confirmado el pago, recibirás un email con los detalles de tu compra. 
+                                    <div className="payment-warning">
+                                        <h4>⚠️ Importante:</h4>
+                                        <p>
+                                            Una vez confirmado el pago, recibirás un email con los detalles de tu compra.
                                             El envío se procesará en un plazo de 1-3 días hábiles.
                                         </p>
                                     </div>
-                                    
-                                    <div style={{ textAlign: "center" }}>
-                                        <a 
-                                            href="https://www.mercadopago.com.co/ayuda/seguridad-y-proteccion_264" 
-                                            target="_blank" 
+
+                                    <div className="payment-link">
+                                        <a
+                                            href="https://www.mercadopago.com.co/ayuda/seguridad-y-proteccion_264"
+                                            target="_blank"
                                             rel="noopener noreferrer"
-                                            style={{ 
-                                                color: "#2a8", 
-                                                textDecoration: "none",
-                                                fontSize: "14px"
-                                            }}
                                         >
                                             Ver derechos y seguridad de Mercado Pago
                                         </a>
@@ -318,135 +229,64 @@ export default function ShoppingCart() {
                     </div>
 
                     {/* Columna Derecha - Productos */}
-                    <div style={{ flex: 1, maxWidth: "500px" }}>
-                        <div style={{
-                            background: "#fff",
-                            borderRadius: "12px",
-                            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                            padding: "20px"
-                        }}>
-                            <h3 style={{ marginTop: 0, marginBottom: "20px", textAlign: "center" }}>
+                    <div className="cart-right">
+                        <div className="cart-summary">
+                            <h3>
                                 Resumen del pedido
                             </h3>
-                            
+
                             {cart.length === 0 ? (
-                                <div style={{ textAlign: "center", color: "#666", padding: "40px 0" }}>
+                                <div className="empty-cart">
                                     <p>Tu carrito está vacío</p>
                                 </div>
                             ) : (
                                 <>
-                                    <div style={{ maxHeight: "300px", overflowY: "auto", marginBottom: "20px" }}>
+                                    <div className="cart-items">
                                         {cart.map(item => (
-                                            <div key={item.code} style={{
-                                                display: "flex",
-                                                alignItems: "flex-start",
-                                                padding: "12px 0",
-                                                borderBottom: "1px solid #eee"
-                                            }}>
-                                                <img 
-                                                    src={item.photo} 
+                                            <div key={item.code} className="cart-item">
+                                                <img
+                                                    src={item.photo}
                                                     alt={item.name}
-                                                    style={{
-                                                        width: "50px",
-                                                        height: "50px",
-                                                        objectFit: "cover",
-                                                        borderRadius: "6px",
-                                                        marginRight: "12px",
-                                                        flexShrink: 0
-                                                    }}
                                                 />
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                    <h4 style={{ 
-                                                        margin: "0 0 4px 0", 
-                                                        fontSize: "14px",
-                                                        fontWeight: "bold",
-                                                        lineHeight: "1.3"
-                                                    }}>
+                                                <div className="item-info">
+                                                    <h4>
                                                         {item.name}
                                                     </h4>
-                                                    <p style={{ 
-                                                        margin: "0 0 6px 0", 
-                                                        color: "#666", 
-                                                        fontSize: "12px",
-                                                        display: "-webkit-box",
-                                                        WebkitLineClamp: 2,
-                                                        WebkitBoxOrient: "vertical",
-                                                        overflow: "hidden",
-                                                        lineHeight: "1.3"
-                                                    }}>
+                                                    <p>
                                                         {item.description}
                                                     </p>
-                                                    <div style={{ 
-                                                        display: "flex", 
-                                                        justifyContent: "space-between", 
-                                                        alignItems: "center",
-                                                        fontSize: "13px"
-                                                    }}>
-                                                        <span style={{ color: "#2a8", fontWeight: "bold" }}>
+                                                    <div className="item-price">
+                                                        <span >
                                                             ${item.price} × {item.quantity}
                                                         </span>
-                                                        <span style={{ fontWeight: "bold", color: "#333" }}>
+                                                        <strong>
                                                             ${item.price * item.quantity}
-                                                        </span>
+                                                        </strong>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                    
-                                    <div style={{ 
-                                        borderTop: "2px solid #eee", 
-                                        paddingTop: "20px",
-                                        textAlign: "center"
-                                    }}>
-                                        <div style={{ 
-                                            fontSize: "24px", 
-                                            fontWeight: "bold", 
-                                            color: "#333",
-                                            marginBottom: "20px"
-                                        }}>
-                                            Total: ${total}
-                                        </div>
-                                        
-                                        <button 
+
+                                    <div className="cart-total">
+                                        <h2>Total: ${total}</h2>
+
+                                        <button
                                             onClick={handlePayment}
                                             disabled={!selectedAddress || cart.length === 0}
-                                            style={{
-                                                background: selectedAddress && cart.length > 0 ? "#2a8" : "#ccc",
-                                                color: "#fff",
-                                                border: "none",
-                                                borderRadius: "8px",
-                                                padding: "15px 30px",
-                                                fontSize: "18px",
-                                                fontWeight: "bold",
-                                                cursor: selectedAddress && cart.length > 0 ? "pointer" : "not-allowed",
-                                                width: "100%",
-                                                transition: "background-color 0.3s ease"
-                                            }}
+                                            className={`btn-pay ${!selectedAddress || cart.length === 0 ? "disabled" : ""}`}
                                         >
                                             Ir a la pasarela de pagos
                                         </button>
-                                        
+
                                         {!selectedAddress && cart.length > 0 && (
-                                            <p style={{ 
-                                                color: "#e74c3c", 
-                                                fontSize: "14px", 
-                                                marginTop: "10px",
-                                                margin: "10px 0 0 0",
-                                                textAlign: "center"
-                                            }}>
+                                            <p className="warning-text">
                                                 ⚠️ Selecciona una dirección de envío para continuar
                                             </p>
                                         )}
-                                        
+
                                         {cart.length === 0 && (
-                                            <p style={{ 
-                                                color: "#e74c3c", 
-                                                fontSize: "14px", 
-                                                marginTop: "10px",
-                                                margin: "10px 0 0 0",
-                                                textAlign: "center"
-                                            }}>
+                                            <p className="warning-text">
                                                 ⚠️ Tu carrito está vacío
                                             </p>
                                         )}
@@ -460,61 +300,26 @@ export default function ShoppingCart() {
 
             {/* Modal para agregar dirección */}
             {showAddressModal && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        background: "#fff",
-                        padding: "32px",
-                        borderRadius: "12px",
-                        width: "90%",
-                        maxWidth: "600px",
-                        maxHeight: "90vh",
-                        overflowY: "auto"
-                    }}>
-                        <h2 style={{ marginTop: 0, textAlign: "center" }}>Agregar Dirección de Envío</h2>
-                        <p style={{ textAlign: "center", color: "#666", marginBottom: "20px" }}>
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h2>Agregar Dirección de Envío</h2>
+                        <p>
                             Agrega una nueva dirección para completar tu compra
                         </p>
-                        <button 
+                        <button
                             onClick={() => setShowAddressModal(false)}
-                            style={{
-                                position: "absolute",
-                                top: "15px",
-                                right: "15px",
-                                background: "none",
-                                border: "none",
-                                fontSize: "24px",
-                                cursor: "pointer"
-                            }}
+                            className="modal-close"
                         >
                             ×
                         </button>
-                        <div style={{ textAlign: "center", padding: "40px 0" }}>
+                        <div className="modal-body">
                             <p>Para agregar una nueva dirección, ve a la página de "Direcciones de envío"</p>
-                            <button 
+                            <button
                                 onClick={() => {
                                     setShowAddressModal(false);
-                                    window.location.href = "/shipping-addresses";
+                                    navigate("/shipping-addresses");
                                 }}
-                                style={{
-                                    background: "#2a8",
-                                    color: "#fff",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                    padding: "12px 24px",
-                                    cursor: "pointer",
-                                    marginTop: "15px"
-                                }}
+                                className="btn-primary"
                             >
                                 Ir a Direcciones de Envío
                             </button>

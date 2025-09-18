@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Swal from 'sweetalert2';
 import API from '../config/AxiosConfig';
+import './css/SignUpPage.css';
 
 export default function RegisterPage() {
 
@@ -12,6 +12,7 @@ export default function RegisterPage() {
         fullName: '',
         email: '',
         password: '',
+        repeatPassword: '',
         phoneNumber: '',
         userType: 1
     });
@@ -20,8 +21,19 @@ export default function RegisterPage() {
 
     const handleSubmit = async e => {
         e.preventDefault();
+        if (form.password !== form.repeatPassword) {
+            Swal.fire({
+                icon: "error",
+                title: "Las contraseñas no coinciden",
+                showConfirmButton: true
+            });
+            return;
+        }
         try {
-            await API.post('/auth/signup', form).then(result => {
+            await API.post('/auth/signup', {
+                ...form,
+                repeatPassword: undefined // No enviar repeatPassword al backend
+            }).then(result => {
                 console.log("Object saved succesfully", result);
                 Swal.fire({
                     position: "center",
@@ -38,67 +50,74 @@ export default function RegisterPage() {
 
     return (
         <>
-            <div style={{ marginTop: 120, display: 'flex', justifyContent: 'center' }}>
-                <form onSubmit={handleSubmit} style={{
-                    background: '#fff',
-                    padding: 32,
-                    borderRadius: 12,
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    minWidth: 340,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 18
-                }}>
-                    <h2 style={{ textAlign: 'center' }}>Registrarse</h2>
-                    <input
-                        name="fullName"
-                        type="text"
-                        placeholder="Nombre completo"
-                        value={form.fullName}
-                        onChange={handleChange}
-                        required
-                        style={{ padding: 10, fontSize: 16, borderRadius: 6, border: '1px solid #ccc' }}
-                    />
-                    <input
-                        name="email"
-                        type="email"
-                        placeholder="Correo electrónico"
-                        value={form.email}
-                        onChange={handleChange}
-                        required
-                        style={{ padding: 10, fontSize: 16, borderRadius: 6, border: '1px solid #ccc' }}
-                    />
-                    <input
-                        name="password"
-                        type="password"
-                        placeholder="Contraseña"
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                        style={{ padding: 10, fontSize: 16, borderRadius: 6, border: '1px solid #ccc' }}
-                    />
-                    <input
-                        name="phoneNumber"
-                        type="tel"
-                        placeholder="Número de teléfono"
-                        value={form.phoneNumber}
-                        onChange={handleChange}
-                        required
-                        style={{ padding: 10, fontSize: 16, borderRadius: 6, border: '1px solid #ccc' }}
-                    />
-                    <button type="submit" style={{
-                        background: '#2a8',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 6,
-                        padding: '12px 0',
-                        fontWeight: 'bold',
-                        fontSize: 18,
-                        cursor: 'pointer'
-                    }}>
-                        Registrarse
-                    </button>
+            <div className="register-container">
+                <h2 className="register-title">Registrarse</h2>
+                <form onSubmit={handleSubmit} className="register-form">
+                    <div>
+                        <label>Nombre completo</label>
+                        <input
+                            name="fullName"
+                            type="text"
+                            placeholder="Nombre completo"
+                            value={form.fullName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Número de telefono</label>
+                        <input
+                            name="phoneNumber"
+                            type="tel"
+                            placeholder="Número de teléfono"
+                            value={form.phoneNumber}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Email</label>
+                        <input
+                            name="email"
+                            type="email"
+                            placeholder="Correo electrónico"
+                            value={form.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Contraseña</label>
+                        <input
+                            name="password"
+                            type="password"
+                            placeholder="Contraseña"
+                            value={form.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Repetir Contraseña</label>
+                        <input
+                            name="repeatPassword"
+                            type="password"
+                            placeholder="Repetir Contraseña"
+                            value={form.repeatPassword}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="register-actions">
+                        <button type="submit" className="register-btn">
+                            Registrarse
+                        </button>
+                    </div>
                 </form>
+                <div className="register-login">
+                    ¿Ya tienes cuenta? <span className="sendlog" onClick={() => navigate("/signin")}>Inicia sesión</span>
+                </div>
             </div>
         </>
     );

@@ -1,0 +1,131 @@
+/* Header Container - Mantiene exactamente los estilos originales */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 2rem;
+    background: var(--color-surface);
+    border-bottom: var(--border-subtle);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+/* Logo */
+.header-logo {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+/* Spacer */
+.header-spacer {
+    flex: 1;
+}
+
+/* Right Icons Container */
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    color: var(--color-text);
+}
+
+/* Cart Icon Container */
+.cart-icon-container {
+    position: relative;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+/* Cart Badge */
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    left: 18px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 50%;
+    padding: 2px 7px;
+    font-size: 13px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+    line-height: 18px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Profile Icon Container */
+.profile-icon-container {
+    position: relative;
+    font-size: 1.8rem;
+    height: 32px;
+}
+
+.profile-icon {
+    cursor: pointer;
+}
+
+/* Profile Menu */
+.profile-menu {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    background: var(--color-surface-2);
+    border: var(--border-subtle);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    padding: 18px 24px;
+    min-width: 220px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* Menu Buttons */
+.menu-btn-primary {
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+.menu-btn-secondary {
+    background: transparent;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: 5px;
+    padding: 8px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+.menu-btn-danger {
+    background-color: var(--color-danger);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 5px;
+    padding: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+/* Menu Text */
+.menu-text {
+    font-size: 15px;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+    text-align: center;
+}

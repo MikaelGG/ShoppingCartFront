@@ -1,4 +1,5 @@
 import API from '../config/AxiosConfig';
+import './css/UserConfig.css';
 import { useState, useEffect, use } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
@@ -6,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function UserConfig() {
     const navigate = useNavigate();
-    const [userData, setUserData] = useState(null); 
+    const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { token } = useAuth();
@@ -29,9 +30,9 @@ export default function UserConfig() {
 
     const updateUserData = async () => {
         try {
-            
+
         } catch (error) {
-            
+
         }
     }
 
@@ -52,29 +53,12 @@ export default function UserConfig() {
 
     return (
         <>
-            <div style={{ marginTop: 70, display: 'flex', justifyContent: 'center' }}>
-                <form onSubmit={updateUserData} style={{
-                    background: '#fff',
-                    padding: 32,
-                    borderRadius: 12,
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    minWidth: 700,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 18
-                }}>
-                    <h2 style={{ textAlign: 'center' }}>Datos del usuario</h2>
-                    
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        gap: '50px'
-                    }}>
-                        <label style={{ 
-                            fontSize: '25px', 
-                            width: '33.33%', // 1/3 del ancho
-                            textAlign: 'left'
-                        }}>
+            <div className="user-config-container">
+                <h2 className="user-config-title">Datos del usuario</h2>
+                <form onSubmit={updateUserData} className="user-config-form">
+
+                    <div className="user-config-field">
+                        <label >
                             Nombre completo
                         </label>
                         <input
@@ -84,26 +68,11 @@ export default function UserConfig() {
                             value={userData.fullName}
                             onChange={handleInputChange}
                             required
-                            style={{ 
-                                padding: 10, 
-                                fontSize: 16, 
-                                borderRadius: 6, 
-                                border: '1px solid #ccc',
-                                width: '66.67%'
-                            }}
                         />
                     </div>
-                    
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        gap: '50px'
-                    }}>
-                        <label style={{ 
-                            fontSize: '25px', 
-                            width: '33.33%', // 1/3 del ancho
-                            textAlign: 'left'
-                        }}>
+
+                    <div className="user-config-field">
+                        <label>
                             Correo electrónico
                         </label>
                         <input
@@ -113,26 +82,11 @@ export default function UserConfig() {
                             value={userData.email}
                             onChange={handleInputChange}
                             required
-                            style={{ 
-                                padding: 10, 
-                                fontSize: 16, 
-                                borderRadius: 6, 
-                                border: '1px solid #ccc',
-                                width: '66.67%'
-                            }}
                         />
                     </div>
-                    
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        gap: '50px'
-                    }}>
-                        <label style={{ 
-                            fontSize: '25px', 
-                            width: '33.33%', // 1/3 del ancho
-                            textAlign: 'left'
-                        }}>
+
+                    <div className="user-config-field">
+                        <label >
                             Contraseña
                         </label>
                         <input
@@ -142,26 +96,11 @@ export default function UserConfig() {
                             value={userData.password || ''} // Prevenir undefined
                             onChange={handleInputChange}
                             required
-                            style={{ 
-                                padding: 10, 
-                                fontSize: 16, 
-                                borderRadius: 6, 
-                                border: '1px solid #ccc',
-                                width: '66.67%'
-                            }}
                         />
                     </div>
-                    
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        gap: '50px'
-                    }}>
-                        <label style={{ 
-                            fontSize: '25px', 
-                            width: '33.33%', // 1/3 del ancho
-                            textAlign: 'left'
-                        }}>
+
+                    <div className="user-config-field">
+                        <label>
                             Número de teléfono
                         </label>
                         <input
@@ -171,27 +110,10 @@ export default function UserConfig() {
                             value={userData.phoneNumber}
                             onChange={handleInputChange}
                             required
-                            style={{ 
-                                padding: 10, 
-                                fontSize: 16, 
-                                borderRadius: 6, 
-                                border: '1px solid #ccc',
-                                width: '66.67%'
-                            }}
                         />
                     </div>
-                    
-                    <button type="submit" style={{
-                        background: '#2a8',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 6,
-                        padding: '12px 0',
-                        fontWeight: 'bold',
-                        fontSize: 18,
-                        cursor: 'pointer',
-                        marginTop: '10px'
-                    }}>
+
+                    <button type="submit" className="user-config-save">
                         Actualizar Datos
                     </button>
                 </form>

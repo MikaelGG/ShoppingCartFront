@@ -1,0 +1,199 @@
+/* CartMenu.css — sustituir / añadir en tu archivo actual */
+
+.cart-menu {
+    position: fixed;
+    top: 0;
+    right: -40vw;
+    width: 33vw;
+    min-width: 340px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 16px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: right 0.3s;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.cart-menu.open {
+    right: 0;
+}
+
+.cart-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.cart-header {
+    margin: 0 0 24px 0;
+}
+
+.cart-content {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 24px;
+    /* evita que contenido interno empuje el layout */
+    overscroll-behavior: contain;
+}
+
+.cart-empty {
+    color: #888;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.cart-item {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    padding: 16px;
+    background: #fafafa;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    /* <--- cada sección en columna */
+}
+
+.item-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+/* Imagen + detalles en fila */
+.item-main {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.item-main.expanded {
+    margin-bottom: 8px;
+}
+
+/* Imagen fija */
+.item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+/* Detalles: clave el min-width:0 */
+.item-details {
+    flex: 1;
+    min-width: 0;
+    /* <--- sin esto, la descripción se va en columna vertical */
+    overflow-wrap: break-word;
+}
+
+/* Descripción con texto normal */
+.item-description {
+    color: #333;
+    font-size: 15px;
+    margin-bottom: 8px;
+    white-space: normal;
+    /* <--- evita texto vertical */
+    word-break: break-word;
+}
+
+.toggle-desc {
+    color: #888;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 4px;
+}
+
+.toggle-desc.less {
+    margin-left: 8px;
+}
+
+/* Precio dentro del bloque */
+.item-price {
+    font-weight: bold;
+    color: #2a8;
+    font-size: 16px;
+    margin-top: 4px;
+}
+
+.item-price.expanded {
+    margin-left: calc(80px + 12px);
+}
+
+
+
+/* Controles de cantidad */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.quantity-controls button {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    border-radius: 4px;
+    color: black;
+}
+
+.quantity-controls span {
+    font-size: 16px;
+}
+
+.remove-btn {
+    margin-left: auto;
+    /* botón eliminar al final de la fila */
+    color: red;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Subtotal siempre en su propia línea */
+.item-subtotal {
+    font-weight: bold;
+    color: #444;
+    font-size: 16px;
+    margin-top: 8px;
+}
+
+/* Pie del cart */
+.cart-footer {
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+    margin-top: 8px;
+    background: #fff;
+}
+
+.cart-total {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.checkout-btn {
+    background: #2a8;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 0;
+    font-weight: bold;
+    font-size: 18px;
+    width: 100%;
+    cursor: pointer;
+}

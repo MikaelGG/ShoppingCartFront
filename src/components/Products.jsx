@@ -8,12 +8,12 @@ export default function ProductCard({ product, onAddToCart }) {
 
     return (
         <div className="product-card">
-            <img 
-                src={product.photo} 
-                alt={product.name} 
-                className="product-image" 
-            />
             <h3 className="product-name">{product.name}</h3>
+            <img
+                src={product.photo}
+                alt={product.name}
+                className="product-image"
+            />
             <p className="product-description">{product.description}</p>
             <div className="product-spacer" />
             <div className="product-footer">
@@ -21,15 +21,15 @@ export default function ProductCard({ product, onAddToCart }) {
                     Precio ${product.price}
                 </span>
                 <div className="quantity-controls">
-                    <button 
-                        onClick={() => setQuantity(q => Math.max(0, q - 1))} 
+                    <button
+                        onClick={() => setQuantity(q => Math.max(0, q - 1))}
                         className="quantity-btn"
                     >
                         -
                     </button>
                     <span className="quantity-display">{quantity}</span>
-                    <button 
-                        onClick={() => setQuantity(q => q + 1)} 
+                    <button
+                        onClick={() => setQuantity(q => q + 1)}
                         className="quantity-btn"
                     >
                         +
@@ -66,8 +66,8 @@ export function Products({ selectedType, searchQuery }) {
             url = 'http://localhost:8080/api/products';
         }
         axios.get(url).then(res => setProducts(res.data))
-        .catch(() => setProducts([]))
-        .finally(() => setLoading(false));
+            .catch(() => setProducts([]))
+            .finally(() => setLoading(false));
     }, [selectedType, searchQuery]);
 
     return (
@@ -79,9 +79,11 @@ export function Products({ selectedType, searchQuery }) {
             ) : products.length === 0 ? (
                 <div className="no-products-message">No hay productos para mostrar</div>
             ) : (
-                products.map(product => (
-                    <ProductCard key={product.code} product={product} onAddToCart={addToCart} />
-                ))
+                <div className="products-grid">
+                    {products.map(product => (
+                        <ProductCard key={product.code} product={product} onAddToCart={addToCart} />
+                    ))}
+                </div>
             )}
         </div>
     );

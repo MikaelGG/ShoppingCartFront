@@ -17,7 +17,7 @@ export default function UserConfig() {
             setLoading(true);
             const tokdecoded = jwtDecode(token);
             console.log(tokdecoded);
-            const response = await API.get('/api/users/email' + '?email=' + tokdecoded.sub);
+            const response = await API.get(`/api/users/email?email=${tokdecoded.sub}`);
             console.log(response);
             setUserData(response.data);
         } catch (error) {

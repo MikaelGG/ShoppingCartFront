@@ -9,10 +9,11 @@ export default function ManageProducts() {
   const [types, setTypes] = useState([]);
   const [modalProduct, setModalProduct] = useState(false);
   const [modalType, setModalType] = useState(false);
-  const [formProduct, setFormProduct] = useState({ name: '', photo: '', description: '', quantity: '', price: '', productType: {id: '', nameType: ''} });
-  const [formType, setFormType] = useState({id: '', nameType: '' });
+  const [formProduct, setFormProduct] = useState({ name: '', photo: '', description: '', quantity: '', price: '', productType: { id: null, nameType: '' } });
+  const [formType, setFormType] = useState({ id: '', nameType: '' });
   const [editType, setEditType] = useState(null);
   const [search, setSearch] = useState('');
+  const [editProductCode, setEditProductCode] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -32,14 +33,49 @@ export default function ManageProducts() {
 
   const handleProductSubmit = async e => {
     e.preventDefault();
+    console.log('Datos que se envían:', formProduct)
+    console.log(editProductCode);
     try {
-      await API.post('/products', formProduct);
+      if (editProductCode) {
+        await API.put(`/api/products/${editProductCode}`, formProduct);
+        setEditProductCode(null);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Product updated successfully",
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      } else {
+        await API.post('/api/products', formProduct);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Product saved successfully",
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      }
+      setFormProduct({ name: '', photo: '', description: '', quantity: '', price: '', productType: { id: '', nameType: '' } });
       setModalProduct(false);
       fetchProducts();
-      Swal.fire('Agregado', 'Producto agregado', 'success');
-    } catch {
+    } catch (error) {
       Swal.fire('Error', 'No se pudo agregar', 'error');
+      console.log(error)
     }
+  };
+  const handleProductDelete = code => {
+    Swal.fire({
+      title: '¿Eliminar producto?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar'
+    }).then(async result => {
+      if (result.isConfirmed) {
+        await API.delete(`/api/products/${code}`);
+        fetchProducts();
+      }
+    });
   };
 
   const handleTypeSubmit = async e => {
@@ -48,12 +84,28 @@ export default function ManageProducts() {
       if (editType) {
         await API.put(`/api/product-types/${editType.id}`, formType);
         setEditType(null);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Product type updated successfully",
+          showConfirmButton: false,
+          timer: 3000,
+        });
       } else {
         await API.post('/api/product-types', formType);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Product type saved successfully",
+          showConfirmButton: false,
+          timer: 3000,
+        });
       }
-      setFormType({id: '', nameType: '' });
+      setFormType({ id: '', nameType: '' });
       fetchTypes();
-    } catch {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleTypeDelete = id => {
@@ -94,8 +146,8 @@ export default function ManageProducts() {
       />
       <div className="products-grid">
         {filteredProducts.map(prod => (
-          <div key={prod.id} className="product-card">
-            <img src={prod.photo} alt={prod.name}/>
+          <div key={prod.code} className="product-card">
+            <img src={prod.photo} alt={prod.name} />
             <div className="name">{prod.name}</div>
             <div className="description">{prod.description}</div>
             <div className="quantity">Cantidad: {prod.quantity}</div>
@@ -103,50 +155,103 @@ export default function ManageProducts() {
             <div className="type">
               Tipo: {types.find(t => t.id === prod.productType.id)?.nameType || 'Sin tipo'}
             </div>
+            <div className="product-actions">
+              <button
+                className="product-action-btn"
+                onClick={() => {
+                  setFormProduct({
+                    ...prod,
+                  });
+                  setModalProduct(true);
+                  setEditProductCode(prod.code);
+                }}
+              >
+                ✏️
+              </button>
+              <button
+                className="product-action-btn"
+                onClick={() => handleProductDelete(prod.code)}
+              >
+                🗑️
+              </button>
+            </div>
           </div>
         ))}
       </div>
       {/* Modal producto */}
-      <GlobalModal open={modalProduct} onClose={() => setModalProduct(false)} title="Agregar producto" width={500}>
-        <form onSubmit={handleProductSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <input name="name" placeholder="Nombre" value={formProduct.name} onChange={e => setFormProduct(f => ({ ...f, name: e.target.value }))} required />
+      <GlobalModal open={modalProduct} onClose={() => {
+        setModalProduct(false); setEditProductCode(null); setFormProduct({ name: '', photo: '', description: '', quantity: '', price: '', productType: { id: '', nameType: '' } });
+      }} title={editProductCode ? 'Actualizar producto' : 'Agregar producto'}>
+        <form onSubmit={handleProductSubmit} className="product-form">
+          <input name="name" placeholder="Nombre del producto" value={formProduct.name} onChange={e => setFormProduct(f => ({ ...f, name: e.target.value }))} required />
           <input name="photo" placeholder="URL de la foto" value={formProduct.photo} onChange={e => setFormProduct(f => ({ ...f, photo: e.target.value }))} required />
-          <input name="description" placeholder="Descripción" value={formProduct.description} onChange={e => setFormProduct(f => ({ ...f, description: e.target.value }))} required />
+          <textarea name="description" placeholder="Descripción" value={formProduct.description} onChange={e => setFormProduct(f => ({ ...f, description: e.target.value }))} required />
           <input name="quantity" type="number" placeholder="Cantidad" value={formProduct.quantity} onChange={e => setFormProduct(f => ({ ...f, quantity: e.target.value }))} required />
           <input name="price" type="number" placeholder="Precio" value={formProduct.price} onChange={e => setFormProduct(f => ({ ...f, price: e.target.value }))} required />
-          <select name="typeId" value={formProduct.productType.id} onChange={e => setFormProduct(f => ({ ...f, productType: { id: e.target.value } }))} required>
+          <select name="productType" value={formProduct.productType.id} onChange={e => setFormProduct(f => ({ ...f, productType: { id: e.target.value, nameType: '' } }))} required>
             <option value="">Selecciona tipo de producto</option>
             {types.map(t => <option key={t.id} value={t.id}>{t.nameType}</option>)}
           </select>
-          <button type="submit" style={{ background: 'var(--color-accent)', color: '#fff', border: 'none', borderRadius: 5, padding: 10, fontWeight: 'bold', marginTop: 10 }}>
-            Agregar
+          <button type="submit">
+            {editProductCode ? 'Actualizar' : 'Agregar'}
           </button>
         </form>
       </GlobalModal>
       {/* Modal tipo de producto */}
-      <GlobalModal open={modalType} onClose={() => { setModalType(false); setEditType(null); setFormType({ name: '' }); }} title="Tipo de productos" width={400}>
-        <form onSubmit={handleTypeSubmit} style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
-          <input name="name" placeholder="Nombre tipo de producto" value={formType.nameType} onChange={e => setFormType({ name: e.target.value })} required />
-          <button type="submit" style={{ background: 'var(--color-accent)', color: '#fff', border: 'none', borderRadius: 5, padding: 10, fontWeight: 'bold' }}>
+      <GlobalModal
+        open={modalType}
+        onClose={() => {
+          setModalType(false);
+          setEditType(null);
+          setFormType({ id: '', nameType: '' });
+        }}
+        title="Tipo de productos"
+        width={400}
+      >
+        <form onSubmit={handleTypeSubmit} className="type-form">
+          <input
+            name="nameType"
+            placeholder="Nombre tipo de producto"
+            value={formType.nameType}
+            onChange={e => setFormType({ ...formType, nameType: e.target.value })}
+            required
+          />
+          <button type="submit" className="type-form-btn">
             {editType ? 'Actualizar' : 'Agregar'}
           </button>
         </form>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="types-list">
           {types.map(t => (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f7f7f7', borderRadius: 6, padding: 8 }}>
+            <div key={t.id} className="type-item">
               {editType && editType.id === t.id ? (
-                <input value={formType.nameType} onChange={e => setFormType({ name: e.target.value })} />
+                <input
+                  value={formType.nameType}
+                  onChange={e => setFormType({ ...formType, nameType: e.target.value })}
+                  className="type-edit-input"
+                  readOnly
+                />
               ) : (
                 <span>{t.nameType}</span>
               )}
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button onClick={() => { setEditType(t); setFormType({ name: t.name }); }} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer' }}>✏️</button>
-                <button onClick={() => handleTypeDelete(t.id)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer' }}>🗑️</button>
+              <div className="type-item-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditType(t);
+                    setFormType({ id: t.id, nameType: t.nameType });
+                  }}
+                  className="type-action-btn"
+                >✏️</button>
+                <button
+                  type="button"
+                  onClick={() => handleTypeDelete(t.id)}
+                  className="type-action-btn"
+                >🗑️</button>
               </div>
             </div>
           ))}
         </div>
       </GlobalModal>
-    </div>
+    </div >
   );
 }

@@ -29,17 +29,21 @@ export default function LoginPage() {
                 timer: 2000,
             }).then(() => navigate("/user-conf"));
         } catch (error) {
-            error.response.status !== 401
-                ? Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Error de servidor, intente más tarde",
-                }) && console.log(error)
-                : Swal.fire({
+            if (error.response.status == 404 || error.response.status == 401) {
+                Swal.fire({
                     icon: "error",
                     title: "Error",
                     text: "Credenciales incorrectas",
                 });
+                console.log(error);
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Error de servidor, intente más tarde",
+                });
+                console.log(error);
+            }
         }
     };
 

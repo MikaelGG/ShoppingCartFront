@@ -11,6 +11,7 @@ export default function Administrators() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editAdmin, setEditAdmin] = useState(null);
   const [form, setForm] = useState(initialForm);
+  const [formEdit, setFormEdit] = useState({ ...form, currentPassword: '', newPassword: '', repeatNewPassword: '' });
 
   useEffect(() => {
     fetchAdmins();
@@ -18,37 +19,78 @@ export default function Administrators() {
 
   const fetchAdmins = async () => {
     try {
-      const { data } = await API.get('/admin');
+      const { data } = await API.get('/api/users/admins/' + 3);
       setAdmins(data);
-    } catch (e) { setAdmins([]); }
+    } catch (e) {
+      console.log(e)
+      setAdmins([]);
+    }
   };
 
   const handleOpenModal = (admin = null) => {
     setEditAdmin(admin);
     setForm(admin ? { ...admin, password: '', repeatPassword: '' } : initialForm);
+    setFormEdit({ ...form, currentPassword: '', newPassword: '', repeatNewPassword: '' });
     setModalOpen(true);
   };
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChangeEdit = e => setFormEdit(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async e => {
     e.preventDefault();
     if (form.password !== form.repeatPassword) {
-      Swal.fire('Error', 'Las contraseñas no coinciden', 'error');
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Contraseñas no coinciden",
+        showConfirmButton: false,
+        timer: 3000,
+      });
+      return;
+    } else if (formEdit.newPassword !== formEdit.repeatNewPassword) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Contraseñas no coinciden",
+        showConfirmButton: false,
+        timer: 3000,
+      });
       return;
     }
     try {
       if (editAdmin) {
-        await API.put(`/admin/${editAdmin.id}`, { ...form, userType: 3 });
-        Swal.fire('Actualizado', 'Administrador actualizado', 'success');
+        await API.put(`/api/users/${editAdmin.id}`, { ...formEdit, userType: 3 });
+        console.log(formEdit)
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Administrador actualizado",
+          showConfirmButton: false,
+          timer: 3000,
+        });
       } else {
-        await API.post('/admin', { ...form, userType: 3 });
-        Swal.fire('Agregado', 'Administrador agregado', 'success');
+        await API.post('/auth/signup', { ...form, userType: 3 });
+        console.log(form);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Administrador agregado",
+          showConfirmButton: false,
+          timer: 3000,
+        });
       }
       setModalOpen(false);
       fetchAdmins();
-    } catch {
-      Swal.fire('Error', 'No se pudo guardar', 'error');
+    } catch (error) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: error.response?.data?.message || 'Ocurrió un error',
+        showConfirmButton: false,
+        timer: 3000,
+      });
+      console.log(error);
     }
   };
 
@@ -62,9 +104,15 @@ export default function Administrators() {
       cancelButtonText: 'Cancelar'
     }).then(async result => {
       if (result.isConfirmed) {
-        await API.delete(`/admin/${id}`);
+        await API.delete(`/api/users/${id}`);
         fetchAdmins();
-        Swal.fire('Eliminado', 'Administrador eliminado', 'success');
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Administrador eliminado",
+          showConfirmButton: false,
+          timer: 3000,
+        });
       }
     });
   };
@@ -93,13 +141,28 @@ export default function Administrators() {
         ))}
       </div>
       <GlobalModal open={modalOpen} onClose={() => setModalOpen(false)} title={editAdmin ? 'Editar administrador' : 'Agregar administrador'}>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form onSubmit={handleSubmit} className="product-form">
           <input name="fullName" placeholder="Nombre completo" value={form.fullName} onChange={handleChange} required />
           <input name="email" type="email" placeholder="Correo" value={form.email} onChange={handleChange} required />
           <input name="phoneNumber" placeholder="Teléfono" value={form.phoneNumber} onChange={handleChange} required />
-          <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} required={!editAdmin} />
-          <input name="repeatPassword" type="password" placeholder="Repetir contraseña" value={form.repeatPassword} onChange={handleChange} required={!editAdmin} />
-          <button type="submit" style={{ background: 'var(--color-accent)', color: '#fff', border: 'none', borderRadius: 5, padding: 10, fontWeight: 'bold', marginTop: 10 }}>
+          {editAdmin ? (
+            <>
+              <input name="currentPassword" type="password" placeholder="Contraseña actual" value={formEdit.currentPassword} onChange={handleChangeEdit} required />
+              {formEdit.currentPassword ? (
+                <>
+                  <input name="newPassword" type="password" placeholder="Nueva contraseña" value={formEdit.newPassword} onChange={handleChangeEdit} required />
+                  <input name="repeatNewPassword" type="password" placeholder="Repetir nueva contraseña" value={formEdit.repeatNewPassword} onChange={handleChangeEdit} required />
+                </>
+              ) : null}
+            </>
+
+          ) : (
+            <>
+              <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} required />
+              <input name="repeatPassword" type="password" placeholder="Repetir contraseña" value={form.repeatPassword} onChange={handleChange} required />
+            </>
+          )}
+          <button type="submit">
             {editAdmin ? 'Actualizar datos' : 'Agregar'}
           </button>
         </form>

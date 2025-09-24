@@ -63,3 +63,9 @@
     cursor: pointer;
     margin-top: 10px;
 }
+
+.loading,
+.error {
+    padding: 2rem;
+    margin-top: 4rem;
+}

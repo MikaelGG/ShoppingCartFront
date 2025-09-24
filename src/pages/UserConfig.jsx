@@ -1,4 +1,5 @@
 import API from '../config/AxiosConfig';
+import Swal from 'sweetalert2';
 import './css/UserConfig.css';
 import { useState, useEffect, use } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 export default function UserConfig() {
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
+    const [userPassword, setUserPassword] = useState({ currentPassword: '', newPassword: '', repeatNewPassword: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { token } = useAuth();
@@ -17,8 +19,8 @@ export default function UserConfig() {
             setLoading(true);
             const tokdecoded = jwtDecode(token);
             console.log(tokdecoded);
-            const response = await API.get(`/api/users/email?email=${tokdecoded.sub}`);
-            console.log(response);
+            const response = await API.get(`/api/users/${tokdecoded.id}`);
+            console.log("User config:", response);
             setUserData(response.data);
         } catch (error) {
             console.error("Error fetching user data", error);
@@ -28,13 +30,48 @@ export default function UserConfig() {
         }
     };
 
-    const updateUserData = async () => {
-        try {
-
-        } catch (error) {
-
+    const updateUserData = async e => {
+        e.preventDefault();
+        if (userPassword.newPassword !== userPassword.repeatNewPassword) {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Contraseñas no coinciden",
+                showConfirmButton: false,
+                timer: 3000,
+            });
+            return;
         }
-    }
+        try {
+            const updateData = {
+                ...userData,
+                currentPassword: userPassword.currentPassword,
+                newPassword: userPassword.newPassword,
+                repeatNewPassword: userPassword.repeatNewPassword
+            };
+            console.log("User data:", updateData);
+            await API.put(`/api/users/${userData.id}`, updateData);
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Información actualizada con exito",
+                showConfirmButton: false,
+                timer: 3500,
+            });
+
+            setUserPassword({ currentPassword: '', newPassword: '', repeatNewPassword: '' });
+            fetchUserData();
+        } catch (error) {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: error.response?.data?.message || 'Ocurrió un error',
+                showConfirmButton: false,
+                timer: 3000,
+            });
+            console.log(error);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -44,12 +81,17 @@ export default function UserConfig() {
         }));
     };
 
+    const handleInputChangePassword = (e) => {
+        const { name, value } = e.target;
+        setUserPassword(prev => ({ ...prev, [name]: value }));
+    };
+
     useEffect(() => {
         fetchUserData();
     }, []);
 
-    if (loading) return <div style={{ padding: '2rem', marginTop: '4rem' }}>Cargando...</div>;
-    if (error) return <div style={{ padding: '2rem', marginTop: '4rem' }}>Error: {error}</div>;
+    if (loading) return <div className="loading">Cargando...</div>;
+    if (error) return <div className="error">Error: {error}</div>;
 
     return (
         <>
@@ -86,20 +128,6 @@ export default function UserConfig() {
                     </div>
 
                     <div className="user-config-field">
-                        <label >
-                            Contraseña
-                        </label>
-                        <input
-                            name="password"
-                            type="password"
-                            placeholder="Contraseña"
-                            value={userData.password || ''} // Prevenir undefined
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="user-config-field">
                         <label>
                             Número de teléfono
                         </label>
@@ -112,6 +140,51 @@ export default function UserConfig() {
                             required
                         />
                     </div>
+
+                    <div className="user-config-field">
+                        <label >
+                            Contraseña
+                        </label>
+                        <input
+                            name="currentPassword"
+                            type="password"
+                            placeholder="Contraseña actual"
+                            value={userPassword.currentPassword}
+                            onChange={handleInputChangePassword}
+                            required
+                        />
+                    </div>
+
+                    {userPassword.currentPassword || (userPassword.newPassword || userPassword.repeatNewPassword) ? (
+                        <>
+                            <div className="user-config-field">
+                                <label >
+                                    Nueva Contraseña
+                                </label>
+                                <input
+                                    name="newPassword"
+                                    type="Password"
+                                    placeholder="Nueva contraseña"
+                                    value={userPassword.newPassword}
+                                    onChange={handleInputChangePassword}
+                                    required
+                                />
+                            </div>
+                            <div className="user-config-field">
+                                <label >
+                                    Repetir Nueva Contraseña
+                                </label>
+                                <input
+                                    name="repeatNewPassword"
+                                    type="password"
+                                    placeholder="Repetir nueva contraseña"
+                                    value={userPassword.repeatNewPassword}
+                                    onChange={handleInputChangePassword}
+                                    required
+                                />
+                            </div>
+                        </>
+                    ) : null}
 
                     <button type="submit" className="user-config-save">
                         Actualizar Datos

@@ -12,7 +12,7 @@ export default function UserConfig() {
     const [userPassword, setUserPassword] = useState({ currentPassword: '', newPassword: '', repeatNewPassword: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { token } = useAuth();
+    const { token, setToken } = useAuth();
 
     const fetchUserData = async () => {
         try {
@@ -50,17 +50,19 @@ export default function UserConfig() {
                 repeatNewPassword: userPassword.repeatNewPassword
             };
             console.log("User data:", updateData);
-            await API.put(`/api/users/${userData.id}`, updateData);
+            const resp = await API.put(`/api/users/${userData.id}`, updateData);
+            setToken(resp.data.newToken);
+            console.log(resp);
             Swal.fire({
                 position: "center",
                 icon: "success",
                 title: "Información actualizada con exito",
                 showConfirmButton: false,
                 timer: 3500,
+            }).then(() => {
+                setUserPassword({ currentPassword: '', newPassword: '', repeatNewPassword: '' });
+                navigate(0);
             });
-
-            setUserPassword({ currentPassword: '', newPassword: '', repeatNewPassword: '' });
-            fetchUserData();
         } catch (error) {
             Swal.fire({
                 position: "center",
@@ -151,7 +153,6 @@ export default function UserConfig() {
                             placeholder="Contraseña actual"
                             value={userPassword.currentPassword}
                             onChange={handleInputChangePassword}
-                            required
                         />
                     </div>
 
@@ -167,7 +168,6 @@ export default function UserConfig() {
                                     placeholder="Nueva contraseña"
                                     value={userPassword.newPassword}
                                     onChange={handleInputChangePassword}
-                                    required
                                 />
                             </div>
                             <div className="user-config-field">
@@ -180,7 +180,6 @@ export default function UserConfig() {
                                     placeholder="Repetir nueva contraseña"
                                     value={userPassword.repeatNewPassword}
                                     onChange={handleInputChangePassword}
-                                    required
                                 />
                             </div>
                         </>

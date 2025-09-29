@@ -47,7 +47,7 @@ export default function ShippingAddresses() {
       const tokdecoded = jwtDecode(token);
       console.log(tokdecoded);
       const response = await API.get(
-        "/api/shipping-addresses/ShippAdd" + "?idClient=" + tokdecoded.ID
+        "/api/shipping-addresses/ShippAdd" + "?idClient=" + tokdecoded.id
       );
       console.log(response);
       // Asegurar que response.data sea siempre un array
@@ -319,9 +319,12 @@ export default function ShippingAddresses() {
 
   const handleOpenModal = (address = null) => {
     setEditAddress(address);
-    setForm(
-      address ? { ...address } : { address: "", city: "", postalCode: "" }
-    );
+    console.log(address);
+    if (address) {
+      setFormData({ ...address });
+      setSelectedCountry(address.country || "");
+      setSelectedRegion(address.region || "");
+    }
     setModalOpen(true);
   };
 
@@ -332,7 +335,7 @@ export default function ShippingAddresses() {
     e.preventDefault();
     try {
       const tokdecoded = jwtDecode(token);
-      formData.idClient = tokdecoded.ID;
+      formData.idClient = tokdecoded.id;
       await API.post("/api/shipping-addresses", formData).then((response) => {
         setAddresses((prev) => [...prev, response.data]);
         Swal.fire({
@@ -358,6 +361,7 @@ export default function ShippingAddresses() {
       setSelectedCountry("");
       setSelectedRegion("");
       setCities([]);
+      fetchAddresses();
     } catch (error) {
       console.error("Error saving address:", error);
     }

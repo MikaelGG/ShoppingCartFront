@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../config/AxiosConfig';
 import Swal from 'sweetalert2';
 import GlobalModal from '../components/GlobalModal';
@@ -12,6 +13,7 @@ export default function Administrators() {
   const [editAdmin, setEditAdmin] = useState(null);
   const [form, setForm] = useState(initialForm);
   const [formEdit, setFormEdit] = useState({ ...form, currentPassword: '', newPassword: '', repeatNewPassword: '' });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAdmins();
@@ -30,7 +32,6 @@ export default function Administrators() {
   const handleOpenModal = (admin = null) => {
     setEditAdmin(admin);
     setForm(admin ? { ...admin, password: '', repeatPassword: '' } : initialForm);
-    setFormEdit({ ...form, currentPassword: '', newPassword: '', repeatNewPassword: '' });
     setModalOpen(true);
   };
 
@@ -60,8 +61,17 @@ export default function Administrators() {
     }
     try {
       if (editAdmin) {
-        await API.put(`/api/users/${editAdmin.id}`, { ...formEdit, userType: 3 });
-        console.log(formEdit)
+        const updateData = {
+          ...form
+        }
+        if (formEdit.currentPassword) {
+          updateData.currentPassword = formEdit.currentPassword;
+          updateData.newPassword = formEdit.newPassword;
+          updateData.repeatNewPassword = formEdit.repeatNewPassword;
+        }
+
+        await API.put(`/api/users/admins/${editAdmin.id}`, { ...updateData, userType: 3 });
+        console.log(updateData)
         Swal.fire({
           position: "center",
           icon: "success",
@@ -69,6 +79,7 @@ export default function Administrators() {
           showConfirmButton: false,
           timer: 3000,
         });
+        setFormEdit({ currentPassword: '', newPassword: '', repeatNewPassword: '' });
       } else {
         await API.post('/auth/signup', { ...form, userType: 3 });
         console.log(form);
@@ -131,7 +142,7 @@ export default function Administrators() {
             <div className="info">
               <div className="fullName">{admin.fullName}</div>
               <div className="email">{admin.email}</div>
-              <div className="phone">{admin.phoneNumber}</div>
+              <div className="phoneNumber">{admin.phoneNumber}</div>
             </div>
             <div className="admin-actions">
               <button onClick={() => handleOpenModal(admin)} title="Editar">✏️</button>
@@ -147,11 +158,11 @@ export default function Administrators() {
           <input name="phoneNumber" placeholder="Teléfono" value={form.phoneNumber} onChange={handleChange} required />
           {editAdmin ? (
             <>
-              <input name="currentPassword" type="password" placeholder="Contraseña actual" value={formEdit.currentPassword} onChange={handleChangeEdit} required />
+              <input name="currentPassword" type="password" placeholder="Contraseña actual" value={formEdit.currentPassword} onChange={handleChangeEdit} />
               {formEdit.currentPassword ? (
                 <>
-                  <input name="newPassword" type="password" placeholder="Nueva contraseña" value={formEdit.newPassword} onChange={handleChangeEdit} required />
-                  <input name="repeatNewPassword" type="password" placeholder="Repetir nueva contraseña" value={formEdit.repeatNewPassword} onChange={handleChangeEdit} required />
+                  <input name="newPassword" type="password" placeholder="Nueva contraseña" value={formEdit.newPassword} onChange={handleChangeEdit} />
+                  <input name="repeatNewPassword" type="password" placeholder="Repetir nueva contraseña" value={formEdit.repeatNewPassword} onChange={handleChangeEdit} />
                 </>
               ) : null}
             </>

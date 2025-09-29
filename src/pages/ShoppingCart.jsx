@@ -44,7 +44,7 @@ export default function ShoppingCart() {
         try {
             const tokdecoded = jwtDecode(token);
             console.log(tokdecoded);
-            const response = await API.get(("/api/shipping-addresses/ShippAdd" + "?idClient=" + tokdecoded.ID));
+            const response = await API.get(("/api/shipping-addresses/ShippAdd" + "?idClient=" + tokdecoded.id));
             const addressesData = Array.isArray(response.data) ? response.data : [];
             setAddresses(response.data);
         } catch (error) {

@@ -7,25 +7,44 @@ import API from "../config/AxiosConfig";
 export default function PurchaseRecords() {
     const [records, setRecords] = useState([]);
     const [expandedRow, setExpandedRow] = useState(null);
-    const [userType, setUserType] = useState("CLIENT");
+    const [userType, setUserType] = useState(null);
+    const [userId, setUserId] = useState(null);
     const [items, setItems] = useState({});
     const { token } = useAuth();
 
     useEffect(() => {
-        const tkdec = jwtDecode(token);
-        setUserType(tkdec.userType);
-        console.log(tkdec.userType);
+        try {
+            if (!token) return;
+            const tkdec = jwtDecode(token);
+            setUserType(tkdec.userType);
+            setUserId(tkdec.id);
+            console.log(tkdec.userType);
+        } catch (err) {
+            console.error("Error decodificando token:", err);
+        }
+    }, [token]);
+
+    useEffect(() => {
         const fetchRecords = async () => {
             try {
-                const response = await API.get("/api/purchases");
-                console.log(response.data);
-                setRecords(response.data);
+                if (userType == "Administrator") {
+                    const response = await API.get("/api/purchases");
+                    console.log(response.data);
+                    setRecords(response.data);
+                } else if (userType == "Client") {
+                    const response = await API.get(`/api/purchases/${userId}`);
+                    console.log(response.data);
+                    setRecords(response.data);
+                }
             } catch (error) {
                 console.error("Error cargando registros:", error);
             }
         };
-        fetchRecords();
-    }, []);
+        if (userType) {
+            fetchRecords();
+        }
+    }, [userType, userId]);
+
 
     const fetchItems = async (mpPaymentId) => {
         try {

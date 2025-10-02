@@ -15,6 +15,7 @@ export default function ShoppingCart() {
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [showAddressModal, setShowAddressModal] = useState(false);
+    const [userId, setUserId] = useState(null);
     const [expandedSections, setExpandedSections] = useState({
         address: true,
         buyerInfo: false,
@@ -30,7 +31,8 @@ export default function ShoppingCart() {
             fetchUserData();
             fetchAddresses();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const tkdec = jwtDecode(token);
+        setUserId(tkdec.id);
     }, [token]);
 
     const fetchUserData = async () => {
@@ -75,7 +77,7 @@ export default function ShoppingCart() {
                 photo: item.photo
             }));
 
-            const response = await API.post("/mercadopago/create-preference", items);
+            const response = await API.post(`/mercadopago/create-preference?userId=${userId}`, items);
             console.log(response.data);
             setPreferenceId(response.data.preferenceId);
 
@@ -289,7 +291,7 @@ export default function ShoppingCart() {
                                         {preferenceId && (
                                             <Wallet
                                                 initialization={{ preferenceId }}
-                                                customization={{ texts: { valueProp: "smart_option" } }}
+                                                customization={{ texts: { valueProp: "payment_methods_logos" } }}
                                             />
                                         )}
 

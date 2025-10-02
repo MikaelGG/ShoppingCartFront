@@ -3,6 +3,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import API from "../config/AxiosConfig";
 import './css/ShoppingCart.css';
 
@@ -19,8 +20,10 @@ export default function ShoppingCart() {
         buyerInfo: false,
         paymentGuide: false
     });
-
+    const [preferenceId, setPreferenceId] = useState(null);
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    initMercadoPago("APP_USR-f797aea3-027d-460c-a135-f8ff8f445020", { locale: "es-CO" });
 
     useEffect(() => {
         if (token) {
@@ -59,23 +62,26 @@ export default function ShoppingCart() {
         }));
     };
 
-    const handlePayment = () => {
-        if (!selectedAddress || cart.length === 0) {
-            return;
-        }
+    const handlePayment = async () => {
+        if (!selectedAddress || cart.length === 0) return;
 
-        // Aquí se integraría con Mercado Pago
-        // Por ahora mostramos un mensaje de confirmación
-        const confirmPayment = window.confirm(
-            `¿Confirmar compra por $${total}?\n\n` +
-            `Dirección de envío: ${selectedAddress.fullName}\n` +
-            `${selectedAddress.addressLine1}, ${selectedAddress.city}\n\n` +
-            `Serás redirigido a Mercado Pago para completar el pago.`
-        );
+        try {
+            // Prepara items para enviar al backend
+            const items = cart.map(item => ({
+                code: item.code,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                photo: item.photo
+            }));
 
-        if (confirmPayment) {
-            // Aquí iría la integración real con Mercado Pago
-            alert("Redirigiendo a Mercado Pago...\n\n(Esta es una simulación - en producción se abriría la pasarela de pago real)");
+            const response = await API.post("/mercadopago/create-preference", items);
+            console.log(response.data);
+            setPreferenceId(response.data.preferenceId);
+
+        } catch (error) {
+            console.error("Error creando preferencia:", error);
+            alert("Hubo un error al iniciar el pago");
         }
     };
 
@@ -270,14 +276,22 @@ export default function ShoppingCart() {
 
                                     <div className="cart-total">
                                         <h2>Total: ${total}</h2>
+                                        {!preferenceId && (
+                                            <button
+                                                onClick={handlePayment}
+                                                disabled={!selectedAddress || cart.length === 0}
+                                                className={`btn-pay ${!selectedAddress || cart.length === 0 ? "disabled" : ""}`}
+                                            >
+                                                Ir a la pasarela de pagos
+                                            </button>
+                                        )}
 
-                                        <button
-                                            onClick={handlePayment}
-                                            disabled={!selectedAddress || cart.length === 0}
-                                            className={`btn-pay ${!selectedAddress || cart.length === 0 ? "disabled" : ""}`}
-                                        >
-                                            Ir a la pasarela de pagos
-                                        </button>
+                                        {preferenceId && (
+                                            <Wallet
+                                                initialization={{ preferenceId }}
+                                                customization={{ texts: { valueProp: "smart_option" } }}
+                                            />
+                                        )}
 
                                         {!selectedAddress && cart.length > 0 && (
                                             <p className="warning-text">

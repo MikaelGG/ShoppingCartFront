@@ -16,15 +16,21 @@ export default function ShoppingCart() {
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [userId, setUserId] = useState(null);
+    const [isCreatingPreference, setIsCreatingPreference] = useState(false);
     const [expandedSections, setExpandedSections] = useState({
-        address: true,
+        address: false,
         buyerInfo: false,
         paymentGuide: false
     });
     const [preferenceId, setPreferenceId] = useState(null);
+    const [showPreferenceResetMsg, setShowPreferenceResetMsg] = useState(false);
+    const [isPreferenceBlocked, setIsPreferenceBlocked] = useState(false);
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    initMercadoPago("APP_USR-f797aea3-027d-460c-a135-f8ff8f445020", { locale: "es-CO" });
+    useEffect(() => {
+        initMercadoPago("APP_USR-f797aea3-027d-460c-a135-f8ff8f445020", { locale: "es-CO" });
+    }, []);
+
 
     useEffect(() => {
         if (token) {
@@ -52,12 +58,14 @@ export default function ShoppingCart() {
             const response = await API.get(("/api/shipping-addresses/ShippAdd" + "?idClient=" + tokdecoded.id));
             const addressesData = Array.isArray(response.data) ? response.data : [];
             setAddresses(response.data);
+            console.log(response.data);
         } catch (error) {
             console.error("Error fetching addresses", error);
         }
     };
 
     const toggleSection = (section) => {
+        console.log(section);
         setExpandedSections(prev => ({
             ...prev,
             [section]: !prev[section]
@@ -67,6 +75,7 @@ export default function ShoppingCart() {
     const handlePayment = async () => {
         if (!selectedAddress || cart.length === 0) return;
 
+        setIsCreatingPreference(true);
         try {
             // Prepara items para enviar al backend
             const items = cart.map(item => ({
@@ -77,15 +86,47 @@ export default function ShoppingCart() {
                 photo: item.photo
             }));
 
-            const response = await API.post(`/mercadopago/create-preference?userId=${userId}`, items);
+            const response = await API.post(`/mercadopago/create-preference?userId=${userId}&addressId=${selectedAddress.id}`, items);
             console.log(response.data);
             setPreferenceId(response.data.preferenceId);
 
         } catch (error) {
             console.error("Error creando preferencia:", error);
             alert("Hubo un error al iniciar el pago");
+        } finally {
+            setIsCreatingPreference(false);
         }
     };
+
+    const walletButton = React.useMemo(() => {
+        if (!preferenceId) return null;
+        return (
+            <Wallet
+                initialization={{ preferenceId }}
+                customization={{ texts: { valueProp: "payment_methods_logos" } }}
+                containerId="walletBrick_container"
+            />
+        );
+    }, [preferenceId]);
+
+    useEffect(() => {
+        if (preferenceId) {
+            setPreferenceId(null);
+            setShowPreferenceResetMsg(true);
+        }
+        // eslint-disable-next-line
+    }, [selectedAddress, cart]);
+
+    useEffect(() => {
+        if (showPreferenceResetMsg) {
+            setIsPreferenceBlocked(true); // Bloquea el botón
+            const timer = setTimeout(() => {
+                setShowPreferenceResetMsg(false);
+                setIsPreferenceBlocked(false); // Desbloquea el botón después de 6s
+            }, 6000);
+            return () => clearTimeout(timer);
+        }
+    }, [showPreferenceResetMsg]);
 
     return (
         <>
@@ -281,19 +322,28 @@ export default function ShoppingCart() {
                                         {!preferenceId && (
                                             <button
                                                 onClick={handlePayment}
-                                                disabled={!selectedAddress || cart.length === 0}
-                                                className={`btn-pay ${!selectedAddress || cart.length === 0 ? "disabled" : ""}`}
+                                                disabled={
+                                                    !selectedAddress ||
+                                                    cart.length === 0 ||
+                                                    isCreatingPreference ||
+                                                    isPreferenceBlocked // Bloquea durante el mensaje
+                                                }
+                                                className={`btn-pay ${!selectedAddress ||
+                                                    cart.length === 0 ||
+                                                    isCreatingPreference ||
+                                                    isPreferenceBlocked
+                                                    ? "disabled"
+                                                    : ""
+                                                    }`}
                                             >
                                                 Ir a la pasarela de pagos
                                             </button>
                                         )}
 
-                                        {preferenceId && (
-                                            <Wallet
-                                                initialization={{ preferenceId }}
-                                                customization={{ texts: { valueProp: "payment_methods_logos" } }}
-                                            />
-                                        )}
+                                        {/* Usar el botón memoizado */}
+                                        <div id="walletBrick_container">
+                                            {walletButton}
+                                        </div>
 
                                         {!selectedAddress && cart.length > 0 && (
                                             <p className="warning-text">
@@ -304,6 +354,12 @@ export default function ShoppingCart() {
                                         {cart.length === 0 && (
                                             <p className="warning-text">
                                                 ⚠️ Tu carrito está vacío
+                                            </p>
+                                        )}
+
+                                        {showPreferenceResetMsg && (
+                                            <p className="warning-text">
+                                                ¡Cambios hechos! ⚠️ Genera de nuevo la pasarela de pagos
                                             </p>
                                         )}
                                     </div>

@@ -16,7 +16,7 @@ import ManageProducts from './pages/ManageProducts';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));  
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <AuthProvider>
@@ -35,14 +35,14 @@ export default function Index() {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/user-conf" element={<UserConfig />} />
-            <Route path='/shopping-cart' element={<ShoppingCart/>} />
-            <Route path='/shipping-addresses' element={<ShippingAddresses/>} />
-            <Route path='/purchase-records' element={<PurchaseRecords/>} />
+            <Route path='/shopping-cart' element={<ShoppingCart />} />
+            <Route path='/shipping-addresses' element={<ShippingAddresses />} />
+            <Route path='/purchase-records' element={<PurchaseRecords />} />
             <Route path="/administrators" element={<Administrators />} />
             <Route path="/manage-products" element={<ManageProducts />} />
           </Routes>
         </Layout>
-      </CartProvider>  
+      </CartProvider>
     </BrowserRouter>
   );
 }

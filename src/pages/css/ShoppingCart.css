@@ -1,5 +1,5 @@
 .cart-page {
-    margin-top: 60px;
+    margin-top: 45px;
     text-align: center;
 }
 
@@ -16,7 +16,13 @@
     padding: 0 20px;
 }
 
-.cart-left,
+.cart-left {
+    flex: 1;
+    max-height: 420px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
 .cart-right {
     flex: 1;
 }
